@@ -1,27 +1,48 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+// src/App.tsx
+import React from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from '@/contexts/AuthContext'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
+import { Login } from '@/pages/Login'
+import { SignUp } from '@/pages/SignUp'
+import SpeakerDashboard from '@/pages/SpeakerDashboard'
+import ChurchDashboard from '@/pages/ChurchDashboard'
+import Index from '@/pages/Index'
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          
+          {/* Protected Routes */}
+          <Route 
+            path="/dashboard/speaker" 
+            element={
+              <ProtectedRoute requiredRole="Speaker">
+                <SpeakerDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard/church" 
+            element={
+              <ProtectedRoute requiredRole="Church">
+                <ChurchDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Fallback route */}
+          <Route path="*" element={<div>Page not found</div>} />
         </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+      </Router>
+    </AuthProvider>
+  )
+}
 
-export default App;
+export default App
